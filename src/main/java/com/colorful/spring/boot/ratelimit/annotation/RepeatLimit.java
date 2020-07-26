@@ -34,7 +34,6 @@ public @interface RepeatLimit {
      */
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 
-    LimitType limitType() default LimitType.USER;
+    LimitType[] limitType() default LimitType.METHOD;
 
-//    ReturnCodeType returnCodeType() default ReturnCodeType.REQUEST_LIMIT;
 }

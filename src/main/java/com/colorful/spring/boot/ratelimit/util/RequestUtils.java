@@ -8,7 +8,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @author chenyj
+ * @author hby
  * 2020/7/24 - 20:11.
  **/
 public class RequestUtils {

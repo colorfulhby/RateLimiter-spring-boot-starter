@@ -1,5 +1,6 @@
 package com.colorful.spring.boot.ratelimit.config;
 
+import com.colorful.spring.boot.ratelimit.enums.Constant;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -10,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  *
  */
-@ConfigurationProperties(prefix = "spring.rateLimit")
+@ConfigurationProperties(prefix = Constant.PREFIX)
 public class RateLimitConfig {
 
 }

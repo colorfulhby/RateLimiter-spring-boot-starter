@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author chenyj
- * 2020/6/18 - 16:26.
+ * @author hby
+ * 2020/7/25 - 16:26.
  **/
 @Aspect
 public class RepeatLimitAspect {
@@ -76,7 +76,8 @@ public class RepeatLimitAspect {
         long now = Instant.now().toEpochMilli();
         long expired = now - ttl;
 
-        Long executeTimes = redisTemplate.execute(limitRedisScript, Collections.singletonList(key), now + "", ttl + "", expired + "", max + "");
+        Long executeTimes = redisTemplate.execute(limitRedisScript,
+                Collections.singletonList(key), now + "", ttl + "", expired + "", max + "");
         if (executeTimes != null) {
             if (executeTimes == 0) {
                 logger.debug("request is limited, limit_key:{}, timeout_ttl:{}, req_max:{}", key, ttl, max);
@@ -90,39 +91,43 @@ public class RepeatLimitAspect {
      * 获取限流key => limit:ip.clazzName.methodName || limit:userName.clazzName.methodName
      *
      * @param method    Method
-     * @param limitType LimitType
+     * @param limitTypes LimitTypes
      * @return String
      */
-    private String limitKey(Method method, LimitType limitType) {
+    private String limitKey(Method method, LimitType[] limitTypes) {
 
-        StringBuilder sb = new StringBuilder(REDIS_LIMIT_KEY_PREFIX);
-
-        switch (limitType) {
-            case USER:
-                sb.append(userKeyService.getUserKey()).append(CoreConstants.DOT);
-                break;
-            case ARGS:
-                getRequestArgs(sb);
-                break;
-            case ARGS_AND_USER:
-                sb.append(userKeyService.getUserKey()).append(CoreConstants.DOT);
-                getRequestArgs(sb);
-                break;
-            case IP:
-                sb.append(RequestUtils.getReqIp()).append(CoreConstants.DOT);
-                break;
-            case ALL:
-                break;
-            default:
-                // default USER
-                sb.append(userKeyService.getUserKey()).append(CoreConstants.DOT);
-                break;
+        StringBuilder limitKey = new StringBuilder(REDIS_LIMIT_KEY_PREFIX);
+        for (LimitType limitType : limitTypes) {
+            switch (limitType) {
+                case ARGS:
+                    getRequestArgs(limitKey);
+                    break;
+                case IP:
+                    limitKey.append(RequestUtils.getReqIp())
+                            .append(CoreConstants.DOT);
+                    break;
+                case USER:
+                    limitKey.append(userKeyService.getUserKey())
+                            .append(CoreConstants.DOT);
+                    break;
+                case METHOD:
+                    limitKey.append(method.getDeclaringClass().getName())
+                            .append(CoreConstants.DOT)
+                            .append(method.getName());
+                    break;
+                default:
+                    // default METHOD
+                    break;
+            }
         }
-        sb.append(method.getDeclaringClass().getName()).append(CoreConstants.DOT).append(method.getName());
-        return sb.toString();
+        return limitKey.toString();
     }
 
 
+    /**
+     * 暂时仅支持 url 参数
+     * @param sb
+     */
     private static void getRequestArgs(StringBuilder sb){
         HttpServletRequest req = RequestUtils.getRequest();
         if(null != req){

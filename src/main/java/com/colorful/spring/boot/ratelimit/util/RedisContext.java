@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author chenyj
+ * @author hby
  * 2020/7/24  - 17:11.
  **/
 public class RedisContext{
@@ -45,7 +45,9 @@ public class RedisContext{
         RedisSerializer<String> redisSerializer = (RedisSerializer<String>) redisTemplate.getKeySerializer();
         List<String> result = new ArrayList<>();
 
-        try(Cursor<String> cursor = (Cursor<String>) redisTemplate.executeWithStickyConnection(redisConnection -> new ConvertingCursor<>(redisConnection.scan(options), redisSerializer::deserialize))){
+        try(Cursor<String> cursor = (Cursor<String>) redisTemplate.executeWithStickyConnection(
+                redisConnection -> new ConvertingCursor<>(
+                        redisConnection.scan(options), redisSerializer::deserialize))){
             if(null != cursor){
                 while(cursor.hasNext()){
                     result.add(cursor.next());
