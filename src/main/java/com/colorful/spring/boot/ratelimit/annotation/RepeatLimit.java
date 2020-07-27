@@ -34,6 +34,10 @@ public @interface RepeatLimit {
      */
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 
+    /**
+     * 限流类型，可组合
+     * @return
+     */
     LimitType[] limitType() default LimitType.METHOD;
 
 }

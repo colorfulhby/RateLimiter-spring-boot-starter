@@ -25,7 +25,7 @@ public class RedisConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(RedisTemplate.class)
     public RedisTemplate redisTemplate() {
 
         RedisTemplate redis = new RedisTemplate();

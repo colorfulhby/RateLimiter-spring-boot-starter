@@ -4,9 +4,7 @@ import ch.qos.logback.core.CoreConstants;
 import com.colorful.spring.boot.ratelimit.annotation.RepeatLimit;
 import com.colorful.spring.boot.ratelimit.enums.LimitType;
 import com.colorful.spring.boot.ratelimit.exception.RateLimitInvocationException;
-import com.colorful.spring.boot.ratelimit.service.UserKeyService;
-import com.colorful.spring.boot.ratelimit.util.RequestUtils;
-import org.apache.commons.lang3.ArrayUtils;
+import com.colorful.spring.boot.ratelimit.service.LimitKeyService;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -16,15 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
-import org.springframework.util.CollectionUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,12 +31,12 @@ public class RepeatLimitAspect {
     private static final String REDIS_LIMIT_KEY_PREFIX = "limit:";
     private final RedisScript<Long> limitRedisScript;
     private RedisTemplate<String, String> redisTemplate;
-    private UserKeyService userKeyService;
+    private LimitKeyService limitKeyService;
 
-    public RepeatLimitAspect(RedisTemplate<String, String> redisTemplate, RedisScript<Long> limitRedisScript, UserKeyService userKeyService) {
+    public RepeatLimitAspect(RedisTemplate<String, String> redisTemplate, RedisScript<Long> limitRedisScript, LimitKeyService limitKeyService) {
         this.redisTemplate = redisTemplate;
         this.limitRedisScript = limitRedisScript;
-        this.userKeyService = userKeyService;
+        this.limitKeyService = limitKeyService;
     }
 
     /**
@@ -61,7 +54,8 @@ public class RepeatLimitAspect {
         long max = repeatLimit.max();
         long timeout = repeatLimit.timeout();
         TimeUnit timeUnit = repeatLimit.timeUnit();
-        String limitKey = limitKey(method, repeatLimit.limitType());
+
+        String limitKey = limitKey(method, repeatLimit.limitType(),joinPoint.getArgs().hashCode());
 
         boolean limited = shouldLimited(limitKey, max, timeout, timeUnit);
         if (limited) {
@@ -92,23 +86,22 @@ public class RepeatLimitAspect {
      *
      * @param method    Method
      * @param limitTypes LimitTypes
+     * @param argsHashCode argsHashCode
      * @return String
      */
-    private String limitKey(Method method, LimitType[] limitTypes) {
+    private String limitKey(Method method, LimitType[] limitTypes,int argsHashCode) {
 
         StringBuilder limitKey = new StringBuilder(REDIS_LIMIT_KEY_PREFIX);
         for (LimitType limitType : limitTypes) {
             switch (limitType) {
                 case ARGS:
-                    getRequestArgs(limitKey);
+                    limitKey.append(argsHashCode);
                     break;
                 case IP:
-                    limitKey.append(RequestUtils.getReqIp())
-                            .append(CoreConstants.DOT);
+                    limitKey.append(limitKeyService.getIpKey());
                     break;
                 case USER:
-                    limitKey.append(userKeyService.getUserKey())
-                            .append(CoreConstants.DOT);
+                    limitKey.append(limitKeyService.getUserKey());
                     break;
                 case METHOD:
                     limitKey.append(method.getDeclaringClass().getName())
@@ -119,31 +112,10 @@ public class RepeatLimitAspect {
                     // default METHOD
                     break;
             }
+            limitKey.append(CoreConstants.DOT);
         }
         return limitKey.toString();
     }
 
-
-    /**
-     * 暂时仅支持 url 参数
-     * @param sb
-     */
-    private static void getRequestArgs(StringBuilder sb){
-        HttpServletRequest req = RequestUtils.getRequest();
-        if(null != req){
-            Map<String, String[]> parameterMap = req.getParameterMap();
-            if(!CollectionUtils.isEmpty(parameterMap)){
-                ArrayList<String> list = new ArrayList<>();
-                for (Map.Entry<String, String[]> entry:parameterMap.entrySet()){
-                    list.add(entry.getKey());
-                    String[] values = entry.getValue();
-                    if(!ArrayUtils.isEmpty(values)){
-                        list.addAll(Arrays.asList(values));
-                    }
-                }
-                sb.append(list.hashCode()).append(CoreConstants.DOT);
-            }
-        }
-    }
 
 }

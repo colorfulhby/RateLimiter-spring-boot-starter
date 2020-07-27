@@ -22,9 +22,6 @@ public enum LimitType{
     /**
      * 根据 请求参数  and 指定接口方法  限流，注意post的请求体不作为参数限流指标，仅取url上的参数
      */
-    ARGS,
-    /**
-     * 根据用户-请求   and 指定接口方法   参数限流，注意post的请求体不作为参数限流指标，仅取url上的参数
-     */
-    ARGS_AND_USER,
+    ARGS
+
 }
