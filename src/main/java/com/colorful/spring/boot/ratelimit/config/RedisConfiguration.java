@@ -3,7 +3,6 @@ package com.colorful.spring.boot.ratelimit.config;
 
 import com.colorful.spring.boot.ratelimit.service.RedisService;
 import com.colorful.spring.boot.ratelimit.service.impl.RedisServiceImpl;
-import com.colorful.spring.boot.ratelimit.util.RedisContext;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -55,10 +54,4 @@ public class RedisConfiguration {
         return new RedisServiceImpl(redisTemplate);
     }
 
-
-    @Bean
-    @SuppressWarnings("unchecked")
-    public RedisContext redisContext(){
-        return new RedisContext(redisTemplate());
-    }
 }

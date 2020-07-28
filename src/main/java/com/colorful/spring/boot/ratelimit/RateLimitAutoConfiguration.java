@@ -7,7 +7,6 @@ package com.colorful.spring.boot.ratelimit;
  * @date:2020/7/24 15:51
  */
 
-import com.colorful.spring.boot.ratelimit.config.CacheConfiguration;
 import com.colorful.spring.boot.ratelimit.config.RateLimitConfig;
 import com.colorful.spring.boot.ratelimit.config.RedisConfiguration;
 import com.colorful.spring.boot.ratelimit.config.RepeatLimitConfiguration;
@@ -32,7 +31,7 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnProperty(prefix = Constant.PREFIX, name = "enable", havingValue = "true", matchIfMissing = true)
 @AutoConfigureAfter(RedisAutoConfiguration.class)
 @EnableConfigurationProperties(RateLimitConfig.class)
-@Import({RedisConfiguration.class, CacheConfiguration.class, RepeatLimitConfiguration.class})
+@Import({RedisConfiguration.class,RepeatLimitConfiguration.class})
 public class RateLimitAutoConfiguration {
 
     @Bean
