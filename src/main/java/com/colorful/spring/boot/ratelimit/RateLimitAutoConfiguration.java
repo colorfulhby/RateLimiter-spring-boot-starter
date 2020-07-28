@@ -12,10 +12,14 @@ import com.colorful.spring.boot.ratelimit.config.RateLimitConfig;
 import com.colorful.spring.boot.ratelimit.config.RedisConfiguration;
 import com.colorful.spring.boot.ratelimit.config.RepeatLimitConfiguration;
 import com.colorful.spring.boot.ratelimit.enums.Constant;
+import com.colorful.spring.boot.ratelimit.handler.DefaultLimitKeyHandler;
+import com.colorful.spring.boot.ratelimit.handler.LimitKeyHandler;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -30,5 +34,11 @@ import org.springframework.context.annotation.Import;
 @EnableConfigurationProperties(RateLimitConfig.class)
 @Import({RedisConfiguration.class, CacheConfiguration.class, RepeatLimitConfiguration.class})
 public class RateLimitAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean(value = LimitKeyHandler.class)
+    public LimitKeyHandler stringRandomGenerator() {
+        return new DefaultLimitKeyHandler();
+    }
 
 }

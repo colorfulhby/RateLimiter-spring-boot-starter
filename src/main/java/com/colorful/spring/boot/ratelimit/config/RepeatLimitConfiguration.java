@@ -1,7 +1,7 @@
 package com.colorful.spring.boot.ratelimit.config;
 
 import com.colorful.spring.boot.ratelimit.aspect.RepeatLimitAspect;
-import com.colorful.spring.boot.ratelimit.service.LimitKeyService;
+import com.colorful.spring.boot.ratelimit.handler.LimitKeyHandler;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
@@ -17,16 +17,16 @@ import org.springframework.scripting.support.ResourceScriptSource;
 public class RepeatLimitConfiguration {
 
     private RedisTemplate<String, String> redisTemplate;
-    private LimitKeyService limitKeyService;
+    private LimitKeyHandler limitKeyHandler;
 
-    public RepeatLimitConfiguration(ObjectProvider<RedisTemplate<String, String>> redisTemplate, ObjectProvider<LimitKeyService> userKeyService){
+    public RepeatLimitConfiguration(ObjectProvider<RedisTemplate<String, String>> redisTemplate, ObjectProvider<LimitKeyHandler> limitKeyHandlers){
         this.redisTemplate = redisTemplate.getIfAvailable();
-        this.limitKeyService = userKeyService.getIfAvailable();
+        this.limitKeyHandler = limitKeyHandlers.getIfAvailable();
     }
 
     @Bean
     public RepeatLimitAspect repeatLimitAspect(){
-        return new RepeatLimitAspect(redisTemplate, limitRedisScript(), limitKeyService);
+        return new RepeatLimitAspect(redisTemplate, limitRedisScript(), limitKeyHandler);
     }
 
     @Bean

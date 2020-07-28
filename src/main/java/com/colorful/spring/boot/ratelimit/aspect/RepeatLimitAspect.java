@@ -4,7 +4,7 @@ import ch.qos.logback.core.CoreConstants;
 import com.colorful.spring.boot.ratelimit.annotation.RepeatLimit;
 import com.colorful.spring.boot.ratelimit.enums.LimitType;
 import com.colorful.spring.boot.ratelimit.exception.RateLimitInvocationException;
-import com.colorful.spring.boot.ratelimit.service.LimitKeyService;
+import com.colorful.spring.boot.ratelimit.handler.LimitKeyHandler;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -31,12 +31,12 @@ public class RepeatLimitAspect {
     private static final String REDIS_LIMIT_KEY_PREFIX = "limit:";
     private final RedisScript<Long> limitRedisScript;
     private RedisTemplate<String, String> redisTemplate;
-    private LimitKeyService limitKeyService;
+    private LimitKeyHandler limitKeyHandler;
 
-    public RepeatLimitAspect(RedisTemplate<String, String> redisTemplate, RedisScript<Long> limitRedisScript, LimitKeyService limitKeyService) {
+    public RepeatLimitAspect(RedisTemplate<String, String> redisTemplate, RedisScript<Long> limitRedisScript, LimitKeyHandler limitKeyHandler) {
         this.redisTemplate = redisTemplate;
         this.limitRedisScript = limitRedisScript;
-        this.limitKeyService = limitKeyService;
+        this.limitKeyHandler = limitKeyHandler;
     }
 
     /**
@@ -98,10 +98,10 @@ public class RepeatLimitAspect {
                     limitKey.append(argsHashCode);
                     break;
                 case IP:
-                    limitKey.append(limitKeyService.getIpKey());
+                    limitKey.append(limitKeyHandler.getIpKey());
                     break;
                 case USER:
-                    limitKey.append(limitKeyService.getUserKey());
+                    limitKey.append(limitKeyHandler.getUserKey());
                     break;
                 case METHOD:
                     limitKey.append(method.getDeclaringClass().getName())
