@@ -1,5 +1,5 @@
 # RateLimiter-spring-boot-starter
-基于redis的限流插件，分布式锁
+基于redis的限流插件
 
 
 @RepeatLimit 支持多种（方法，IP，用户，参数）限流方式,可以组合配置使用
