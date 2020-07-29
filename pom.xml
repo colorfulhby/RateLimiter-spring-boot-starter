@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.colorfulhby</groupId>
-    <artifactId>ratelimit</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>ratelimiter-spring-boot-starter</artifactId>
+    <version>1.0.0-RELEASE</version>
     <name>RateLimiter-spring-boot-starter</name>
     <description>限流组件</description>
 
