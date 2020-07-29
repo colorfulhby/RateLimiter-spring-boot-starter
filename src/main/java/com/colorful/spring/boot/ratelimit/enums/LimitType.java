@@ -12,15 +12,15 @@ public enum LimitType{
      */
     METHOD,
     /**
-     * 根据IP and 指定接口方法 限流
+     * 根据IP  限流
      */
     IP,
     /**
-     * 根据用户 and 指定接口方法 限流
+     * 根据用户  限流
      */
     USER,
     /**
-     * 根据 请求参数  and 指定接口方法  限流
+     * 根据 请求参数 限流
      */
     ARGS
 
