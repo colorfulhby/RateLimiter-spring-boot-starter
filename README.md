@@ -46,16 +46,22 @@
      */
     METHOD,
     /**
-     * 根据IP and 指定接口方法 限流
+     * 根据IP  限流
      */
     IP,
     /**
-     * 根据用户 and 指定接口方法 限流
+     * 根据用户  限流
      */
     USER,
     /**
-     * 根据 请求参数  and 指定接口方法  限流  
+     * 根据 请求参数 限流  
      */
     ARGS
 ```
+
+eg:
+```
+    @RepeatLimit(max = 1,timeout = 5,limitType = {LimitType.METHOD,LimitType.USER})
+```
+
 其中 *USER*   限流方式需要继承LimitKeyHandler重写getUserKey()实现自己的用户唯一key获取方法
